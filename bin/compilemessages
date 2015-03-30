@@ -1,0 +1,7 @@
+#!/usr/bin/env python
+import subprocess
+
+from settings import LOCALE_DIR
+
+
+subprocess.call(['pybabel', 'compile', '-f', '-d', LOCALE_DIR])

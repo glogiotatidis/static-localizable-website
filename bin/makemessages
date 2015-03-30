@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+"""
+Usage:
+  makemessages --all
+  makemessages -l <en>
+  makemessages -l <en>,<fr>
+  makemessages (-h | --help)
+
+Options:
+  -h --help  Show this screen.
+  --all      Build all locales listed in settings.LANGUAGES
+  -l <en>    Build only locale en. Should be listed in settings.LANGUAGES
+"""
+import os
+import subprocess
+
+from docopt import docopt
+
+from settings import LANGUAGE_NAMES, BASE_DIR, LOCALE_DIR, SRC_DIR
+
+
+def make_pot():
+    subprocess.call([
+        'pybabel',
+        '-v', 'extract',
+        '-F', os.path.join(BASE_DIR, 'babel.config'),
+        '-o', os.path.join(LOCALE_DIR, 'messages.pot'),
+        SRC_DIR,
+    ])
+
+
+def make_po(lang):
+    if os.path.exists('{}/{}/LC_MESSAGES/messages.po'.format(LOCALE_DIR, lang)):
+        action = 'update'
+    else:
+        action = 'init'
+    subprocess.call(
+        ['pybabel',
+         action,
+         '-l', lang,
+         '-d', LOCALE_DIR,
+         '-i', '{}/messages.pot'.format(LOCALE_DIR)])
+
+if __name__ == '__main__':
+    arguments = docopt(__doc__)
+
+    if arguments.get('--all'):
+        make_pot()
+        for lang in LANGUAGE_NAMES.keys():
+            make_po(lang)
+    elif arguments.get('-l'):
+        make_pot()
+        languages = arguments.get('-l').split(',')
+        for lang in languages:
+            if lang in LANGUAGE_NAMES:
+                make_po(lang)
+            else:
+                print('Skipping {} not in LANGUAGES'.format(lang))

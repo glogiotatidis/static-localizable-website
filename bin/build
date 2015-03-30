@@ -1,0 +1,67 @@
+#!/usr/bin/env python
+
+import codecs
+import shutil
+import os
+import gettext
+from jinja2 import Environment, FileSystemLoader
+
+import settings
+
+def get_language_direction(lang):
+    # Directionality culled from http://meta.wikimedia.org/wiki/Template:List_of_language_names_ordered_by_code
+    langToDir = {
+        'ar':   'rtl',  # Arabic
+        'arc':  'rtl',  # Aramaic
+        'dv':   'rtl',  # Divehi
+        'fa':   'rtl',  # Persian
+        'ha':   'rtl',  # Hausa
+        'he':   'rtl',  # Hebrew
+        'ks':   'rtl',  # Kashmiri
+        'ku':   'rtl',  # Kurdish
+        'ps':   'rtl',  # Pashto
+        'ur':   'rtl',  # Urdu
+        'yi':   'rtl'   # Yiddish
+    }
+
+    return langToDir.get(lang, 'ltr')
+
+
+def build():
+    for lang in settings.LANGUAGE_NAMES.keys():
+        env = Environment(autoescape=True,
+                          loader=FileSystemLoader(settings.SRC_DIR),
+                          extensions=['jinja2.ext.i18n'])
+
+        translation = gettext.translation('messages', settings.LOCALE_DIR, [lang])
+        env.install_gettext_translations(translation)
+
+        context = {
+            'LANGUAGES': settings.LANGUAGES,
+            'LANG': lang,
+            'DIR': get_language_direction(lang),
+        }
+
+        for path, dirs, files in os.walk(settings.SRC_DIR):
+            new_path = os.path.join(
+                os.path.join(settings.BUILD_DIRECTORY, lang),
+                path[len(settings.SRC_DIR)+1:])
+            os.makedirs(new_path)
+            for file in files:
+                new_file = os.path.join(new_path, file)
+                for file_ext in settings.SUPPORTED_FILES:
+                    if file.endswith(file_ext):
+                        template = env.get_template(file)
+                        with codecs.open(new_file, 'wb', 'utf-8') as f:
+                            f.write(template.render(context))
+                        break
+                else:
+                    shutil.copy(os.path.join(path, file), new_file)
+
+
+
+if __name__ == '__main__':
+    if os.path.exists(settings.BUILD_DIRECTORY):
+        shutil.rmtree(settings.BUILD_DIRECTORY)
+    os.makedirs(settings.BUILD_DIRECTORY)
+    build()

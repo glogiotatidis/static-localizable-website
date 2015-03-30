@@ -1,0 +1,25 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+
+body {
+    background: #14143B radial-gradient(ellipse farthest-side at left top , #8934AE 0px, transparent 100%) no-repeat scroll 0% 0% / auto 640px;
+    background-size: auto 640px;
+    color: #FFF;
+    font-family: 'Fira Sans', sans-serif;
+    text-align: center;
+}
+
+h1 {
+    margin-top: 50px;
+}
+
+#language-dropdown {
+    margin-top: 100px;
+    width: 100px;
+    height: 25px;
+    background: #ddd;
+    border: 0px;
+}

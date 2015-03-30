@@ -1,0 +1,27 @@
+<html lang="{{ LANG }}" dir="{{ DIR }}">
+<head>
+  <meta charset="utf-8">
+  <link href="style.css" type="text/css" rel="stylesheet">
+  <link rel="stylesheet" href="https://code.cdn.mozilla.net/fonts/fira.css">
+</head>
+<body>
+  <h1>{% trans %}Hello Mozilla {% endtrans %}</h1>
+  <p>{% trans %}Hello Mozilla, this is English{% endtrans %}</p>
+  <select id="language-dropdown">
+    {% for lang_code, lang_name in LANGUAGES %}
+      <option value="{{ lang_code }}" {% if LANG==lang_code %}selected{% endif %}>
+        {{ lang_name }}
+      </option>
+    {% endfor %}
+  </select>
+  <script type="text/javascript" src="libs/zepto.min.js"></script>
+  <script type="text/javascript">
+   $(document).ready(function() {
+       $('#language-dropdown').change(function() {
+           window.location = '/' + this.value + '/index.html';
+       });
+   });
+  </script>
+
+</body>
+</html>
